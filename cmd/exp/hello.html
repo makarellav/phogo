@@ -5,6 +5,34 @@
     <title>Title</title>
 </head>
 <body>
-    <h1>Hello, {{.Name}}</h1>
+<ul>
+    <li>Name: {{ .Name }}</li>
+    <li>Age: {{ .Age }}</li>
+    <li>Weight: {{ .Weight }}</li>
+    <li>Height: {{ .Height }}</li>
+    <li>Social Media: {{ .SocialMedia }}</li>
+    <li>
+        Hobbies:
+        {{ range .Hobbies }}
+        <ol>{{ . }}</ol>
+        {{ end }}
+    </li>
+    <li>
+        Shelter Name: {{ .Shelter.Name }}
+    </li>
+    <li>
+        Shelter Address: {{.Shelter.Address}}
+    </li>
+    <li>
+        Category:
+        {{ if lt .Weight 3.0 }}
+        small
+        {{ else if lt .Weight 4.0 }}
+        medium
+        {{ else }}
+        big
+        {{ end }}
+    </li>
+</ul>
 </body>
 </html>
