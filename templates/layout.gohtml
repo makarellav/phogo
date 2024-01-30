@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>{{block "title" .}}Title{{end}}</title>
+</head>
+<body class="flex flex-col h-screen">
+<header class="px-64 py-4 border-b">
+    <nav class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-sky-500">Phogo</h1>
+        <ul class="w-1/4 flex justify-between font-semibold text-sm mt-2">
+            <li><a class="border-b-2 border-transparent hover:border-sky-500" href="/">Home</a></li>
+            <li><a class="border-b-2 border-transparent hover:border-sky-500" href="/contact">Contact</a></li>
+            <li><a class="border-b-2 border-transparent hover:border-sky-500" href="/faq">FAQ</a></li>
+        </ul>
+        <div>
+            <a class="px-4 py-2 text-white font-semibold bg-sky-500 rounded-md mr-8 hover:bg-sky-600" href="/signin">Sign
+                in
+            </a>
+            <a class="px-4 py-2 font-semibold bg-slate-200 rounded-md hover:bg-slate-300" href="/signup">Sign up</a>
+        </div>
+    </nav>
+</header>
+<main class="grow">
+    {{template "page" .}}
+</main>
+<footer class="px-64 w-full py-4 border-t bottom-0 left-0 flex justify-between items-center">
+    <div class="flex items-center">
+        <p class="text-3xl font-bold text-sky-500 mr-4">Phogo</p>
+        <p class="text-gray-500">© 2023 Phogo™. All Rights Reserved.</p>
+    </div>
+    <ul class="font-semibold">
+        <li><a class="border-b-2 border-transparent hover:border-sky-500" href="/">Home</a></li>
+        <li><a class="border-b-2 border-transparent hover:border-sky-500" href="/contact">Contact</a></li>
+        <li><a class="border-b-2 border-transparent hover:border-sky-500" href="/faq">FAQ</a></li>
+    </ul>
+</footer>
+</body>
+</html>

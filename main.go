@@ -14,17 +14,17 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	tmpl := views.MustParseFS(templates.FS, "home.gohtml", "contact.gohtml")
+	tmpl := views.MustParseFS(templates.FS, "layout.gohtml", "home.gohtml")
 	r.Get("/", controllers.StaticHandler(tmpl))
 
-	tmpl = views.MustParseFS(templates.FS, "contact.gohtml")
+	tmpl = views.MustParseFS(templates.FS, "layout.gohtml", "contact.gohtml")
 	r.Get("/contact", controllers.StaticHandler(tmpl))
 
-	tmpl = views.MustParseFS(templates.FS, "faq.gohtml")
-	r.Get("/faq", controllers.StaticHandler(tmpl))
+	tmpl = views.MustParseFS(templates.FS, "layout.gohtml", "faq.gohtml")
+	r.Get("/faq", controllers.FAQ(tmpl))
 
-	tmpl = views.MustParseFS(templates.FS, "exp.gohtml")
-	r.Get("/exp", controllers.StaticHandler(tmpl))
+	tmpl = views.MustParseFS(templates.FS, "layout.gohtml", "signup.gohtml")
+	r.Get("/signup", controllers.StaticHandler(tmpl))
 
 	log.Fatal(http.ListenAndServe(":3000", r))
 }

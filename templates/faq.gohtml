@@ -1,20 +1,16 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-<ul>
-    <li>Q: Is there a free version?</li>
-    <li>A: Yes! We offer free trial for 30 days on any paid plans.</li>
-    <li>Q: What are your support hours?</li>
-    <li>A: We have support staff answering emails 24/7, though response times may be a bit slower on weekends</li>
-    <li>Q: How do I contact support?</li>
-    <li>A: Email us - <a href='mailto:support@lenslocked.com'>support@lenslocked.com</a></li>
-</ul>
-</body>
-</html>
+{{define "title"}}
+    FAQ
+{{end}}
+
+{{define "page"}}
+    <ul>
+        {{range .}}
+            {{template "qna" .}}
+        {{end}}
+    </ul>
+{{end}}
+
+{{define "qna"}}
+    <li>Q: {{.Question}}</li>
+    <li>A: {{.Answer}}</li>
+{{end}}
