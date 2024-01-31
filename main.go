@@ -23,8 +23,15 @@ func main() {
 	tmpl = views.MustParseFS(templates.FS, "layout.gohtml", "faq.gohtml")
 	r.Get("/faq", controllers.FAQ(tmpl))
 
-	tmpl = views.MustParseFS(templates.FS, "layout.gohtml", "signup.gohtml")
-	r.Get("/signup", controllers.StaticHandler(tmpl))
+	var usersController controllers.Users
+	usersController.Templates.New = views.MustParseFS(templates.FS, "layout.gohtml", "signup.gohtml")
+	r.Handle("/signup", http.RedirectHandler("/users/new", http.StatusMovedPermanently))
+	r.Get("/users/new", usersController.New)
+	r.Post("/signup", usersController.Create)
+
+	//tmpl = views.MustParseFS(templates.FS, "layout.gohtml", "exp.gohtml")
+	//r.Get("/exp", controllers.StaticHandler(tmpl))
+	//r.Post("/exp-create", usersController.Exp)
 
 	log.Fatal(http.ListenAndServe(":3000", r))
 }
