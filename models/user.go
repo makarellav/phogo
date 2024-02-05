@@ -26,7 +26,10 @@ func (us *UserService) Create(email string, password string) (*User, error) {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
 
-	row := us.DB.QueryRow(context.Background(), `INSERT INTO users(email, password_hash) VALUES ($1, $2) RETURNING id`, email, hashedPassword)
+	row := us.DB.QueryRow(context.Background(), `
+INSERT INTO users(email, password_hash) 
+VALUES ($1, $2) RETURNING id`,
+		email, hashedPassword)
 
 	user := User{
 		Email:        email,
@@ -37,6 +40,31 @@ func (us *UserService) Create(email string, password string) (*User, error) {
 
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
+	}
+
+	return &user, nil
+}
+
+func (us *UserService) Authenticate(email string, password string) (*User, error) {
+	user := User{
+		Email: email,
+	}
+
+	row := us.DB.QueryRow(context.Background(), `
+SELECT id, password_hash 
+FROM users WHERE email = $1`,
+		email)
+
+	err := row.Scan(&user.ID, &user.PasswordHash)
+
+	if err != nil {
+		return nil, fmt.Errorf("authenticate: %w", err)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+
+	if err != nil {
+		return nil, fmt.Errorf("authenticate: %w", err)
 	}
 
 	return &user, nil

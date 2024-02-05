@@ -2,13 +2,16 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/makarellav/phogo/models"
 	"net/http"
 )
 
 type Users struct {
 	Templates struct {
-		New Template
+		New    Template
+		SignIn Template
 	}
+	UserService *models.UserService
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -18,36 +21,66 @@ func (u Users) New(w http.ResponseWriter, r *http.Request) {
 
 	data.Email = r.FormValue("email")
 
-	u.Templates.New.Execute(w, data)
+	u.Templates.New.Execute(w, r, data)
+}
+
+func (u Users) SignIn(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email string
+	}
+
+	data.Email = r.FormValue("email")
+
+	u.Templates.SignIn.Execute(w, r, data)
+}
+
+func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
+	email := r.PostFormValue("email")
+	password := r.PostFormValue("password")
+
+	user, err := u.UserService.Authenticate(email, password)
+
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "something went wrong...", http.StatusInternalServerError)
+
+		return
+	}
+
+	cookie := http.Cookie{
+		Name:     "email",
+		Value:    user.Email,
+		Path:     "/",
+		HttpOnly: true,
+	}
+
+	http.SetCookie(w, &cookie)
+
+	fmt.Fprintf(w, "signed in successfully: %+v", user)
 }
 
 func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 	email := r.PostFormValue("email")
 	password := r.PostFormValue("password")
 
-	fmt.Fprint(w, fmt.Sprintf("%s %s", email, password))
-}
-
-func (u Users) Exp(w http.ResponseWriter, r *http.Request) {
-	email := r.FormValue("email")
-	password := r.FormValue("password")
-	address := r.FormValue("address")
-	remember := r.FormValue("remember")
-	hobbies := r.Form["hobby"]
-	sex := r.FormValue("sex")
-	age := r.FormValue("age")
-	file, info, err := r.FormFile("document")
+	user, err := u.UserService.Create(email, password)
 
 	if err != nil {
 		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	if file != nil {
-		defer file.Close()
-	} else {
-		fmt.Println("no file")
+	fmt.Fprintf(w, "user created: %+v\n", user)
+}
+
+func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
+	email, err := r.Cookie("email")
+
+	if err != nil {
+		http.Error(w, "failed to read a cookie", http.StatusInternalServerError)
+
+		return
 	}
 
-	fmt.Fprintf(w, "Email: %s\nPassword: %s\nAddress: %s\nRemember: %v\nHobbies: %v\nSex: %s\nAge: %s\nFile name: %s\n",
-		email, password, address, remember, hobbies, sex, age, info.Filename)
+	fmt.Fprintf(w, "%s: %s", email.Name, email.Value)
 }

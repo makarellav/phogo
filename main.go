@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gorilla/csrf"
 	"github.com/makarellav/phogo/controllers"
+	"github.com/makarellav/phogo/models"
 	"github.com/makarellav/phogo/templates"
 	"github.com/makarellav/phogo/views"
 	"log"
@@ -23,15 +26,31 @@ func main() {
 	tmpl = views.MustParseFS(templates.FS, "layout.gohtml", "faq.gohtml")
 	r.Get("/faq", controllers.FAQ(tmpl))
 
-	var usersController controllers.Users
+	db, err := models.Open(models.DevConfig())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close(context.Background())
+
+	userService := models.UserService{
+		DB: db,
+	}
+
+	usersController := controllers.Users{
+		UserService: &userService,
+	}
 	usersController.Templates.New = views.MustParseFS(templates.FS, "layout.gohtml", "signup.gohtml")
-	r.Handle("/signup", http.RedirectHandler("/users/new", http.StatusMovedPermanently))
-	r.Get("/users/new", usersController.New)
-	r.Post("/signup", usersController.Create)
+	usersController.Templates.SignIn = views.MustParseFS(templates.FS, "layout.gohtml", "signin.gohtml")
 
-	//tmpl = views.MustParseFS(templates.FS, "layout.gohtml", "exp.gohtml")
-	//r.Get("/exp", controllers.StaticHandler(tmpl))
-	//r.Post("/exp-create", usersController.Exp)
+	r.Get("/signup", usersController.New)
+	r.Get("/signin", usersController.SignIn)
+	r.Post("/users", usersController.Create)
+	r.Post("/signin", usersController.ProcessSignIn)
+	r.Get("/users/me", usersController.CurrentUser)
 
-	log.Fatal(http.ListenAndServe(":3000", r))
+	CSRF := csrf.Protect([]byte("32-byte-long-auth-key"))
+
+	log.Fatal(http.ListenAndServe(":3000", CSRF(r)))
 }

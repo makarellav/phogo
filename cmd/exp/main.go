@@ -3,23 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"github.com/makarellav/phogo/models"
 	"log"
 )
 
 func main() {
-	conn, err := pgx.Connect(context.Background(), "postgres://user:password@localhost:1111/phogo")
+	cfg := models.DevConfig()
+	db, err := models.Open(cfg)
+	defer db.Close(context.Background())
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	usersSrv := models.UserService{DB: db}
 
-	defer conn.Close(context.Background())
-
-	usersSrv := models.UserService{DB: conn}
-
-	user, err := usersSrv.Create("test@test.com", "secret_password_123")
+	user, err := usersSrv.Create("test2@test.com", "secret_password_123")
 
 	if err != nil {
 		log.Fatal(err)
