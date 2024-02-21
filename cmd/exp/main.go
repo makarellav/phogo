@@ -1,26 +1,19 @@
 package main
 
-import (
-	"context"
-	"fmt"
-	"github.com/makarellav/phogo/models"
-	"log"
-)
-
 func main() {
-	cfg := models.DevConfig()
-	db, err := models.Open(cfg)
-	defer db.Close(context.Background())
-
-	usersSrv := models.UserService{DB: db}
-
-	user, err := usersSrv.Create("test2@test.com", "secret_password_123")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("%+v\n", user)
+	//cfg := models.DevConfig()
+	//db, err := models.Open(cfg)
+	//defer db.Close(context.Background())
+	//
+	//usersSrv := models.UserService{DB: db}
+	//
+	//user, err := usersSrv.Create("test2@test.com", "secret_password_123")
+	//
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//fmt.Printf("%+v\n", user)
 	//
 	//	if err != nil {
 	//		log.Fatal(err)

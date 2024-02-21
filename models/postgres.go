@@ -1,9 +1,11 @@
 package models
 
 import (
-	"context"
+	"database/sql"
 	"fmt"
-	"github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
+	"io/fs"
 )
 
 type PostgresConfig struct {
@@ -34,12 +36,37 @@ func DevConfig() PostgresConfig {
 	}
 }
 
-func Open(cfg PostgresConfig) (*pgx.Conn, error) {
-	conn, err := pgx.Connect(context.Background(), cfg.String())
+func Open(cfg PostgresConfig) (*sql.DB, error) {
+	db, err := sql.Open("pgx", cfg.String())
 
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)
 	}
 
-	return conn, err
+	return db, err
+}
+
+func Migrate(db *sql.DB, dir string) error {
+	err := goose.SetDialect(string(goose.DialectPostgres))
+
+	if err != nil {
+		return fmt.Errorf("migrate: %w", err)
+	}
+
+	err = goose.Up(db, dir)
+
+	if err != nil {
+		return fmt.Errorf("migrate: %w", err)
+	}
+
+	return nil
+}
+
+func MigrateFS(db *sql.DB, fs fs.FS, dir string) error {
+	goose.SetBaseFS(fs)
+	defer func() {
+		goose.SetBaseFS(nil)
+	}()
+
+	return Migrate(db, dir)
 }

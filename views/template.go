@@ -71,13 +71,3 @@ func MustParseFS(fs fs.FS, patterns ...string) Template {
 		htmlTmpl: tmpl,
 	}
 }
-
-func MustParse(tmplPath string) Template {
-	tmpl, err := template.ParseFiles(tmplPath)
-
-	tmpl = template.Must(tmpl, err)
-
-	return Template{
-		htmlTmpl: tmpl,
-	}
-}

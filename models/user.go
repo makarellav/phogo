@@ -1,9 +1,8 @@
 package models
 
 import (
-	"context"
+	"database/sql"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
 )
@@ -15,7 +14,7 @@ type User struct {
 }
 
 type UserService struct {
-	DB *pgx.Conn
+	DB *sql.DB
 }
 
 func (us *UserService) Create(email string, password string) (*User, error) {
@@ -26,7 +25,7 @@ func (us *UserService) Create(email string, password string) (*User, error) {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
 
-	row := us.DB.QueryRow(context.Background(), `
+	row := us.DB.QueryRow(`
 INSERT INTO users(email, password_hash) 
 VALUES ($1, $2) RETURNING id`,
 		email, hashedPassword)
@@ -50,7 +49,7 @@ func (us *UserService) Authenticate(email string, password string) (*User, error
 		Email: email,
 	}
 
-	row := us.DB.QueryRow(context.Background(), `
+	row := us.DB.QueryRow(`
 SELECT id, password_hash 
 FROM users WHERE email = $1`,
 		email)

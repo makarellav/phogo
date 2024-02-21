@@ -21,7 +21,13 @@
             <a class="px-4 py-2 text-white font-semibold bg-sky-500 rounded-md mr-8 hover:bg-sky-600" href="/signin">Sign
                 in
             </a>
-            <a class="px-4 py-2 font-semibold bg-slate-200 rounded-md hover:bg-slate-300" href="/signup">Sign up</a>
+            <a class="px-4 py-2 font-semibold bg-slate-200 rounded-md mr-8 hover:bg-slate-300" href="/signup">Sign up</a>
+            <form class="inline" action="/signout" method="post">
+                <div class="hidden">
+                    {{csrfField}}
+                </div>
+                <button class="font-semibold" type="submit">Sign out</button>
+            </form>
         </div>
     </nav>
 </header>

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
 	"github.com/makarellav/phogo/controllers"
+	"github.com/makarellav/phogo/migrations"
 	"github.com/makarellav/phogo/models"
 	"github.com/makarellav/phogo/templates"
 	"github.com/makarellav/phogo/views"
@@ -32,14 +32,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	defer db.Close(context.Background())
+	defer db.Close()
+
+	err = models.MigrateFS(db, migrations.FS, ".")
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	userService := models.UserService{
 		DB: db,
 	}
+	sessionService := models.SessionService{
+		DB: db,
+	}
 
 	usersController := controllers.Users{
-		UserService: &userService,
+		UserService:    &userService,
+		SessionService: &sessionService,
 	}
 	usersController.Templates.New = views.MustParseFS(templates.FS, "layout.gohtml", "signup.gohtml")
 	usersController.Templates.SignIn = views.MustParseFS(templates.FS, "layout.gohtml", "signin.gohtml")
@@ -49,6 +59,7 @@ func main() {
 	r.Post("/users", usersController.Create)
 	r.Post("/signin", usersController.ProcessSignIn)
 	r.Get("/users/me", usersController.CurrentUser)
+	r.Post("/signout", usersController.ProcessSignOut)
 
 	CSRF := csrf.Protect([]byte("32-byte-long-auth-key"))
 
