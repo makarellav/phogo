@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/makarellav/phogo/context"
 	"github.com/makarellav/phogo/models"
 	"net/http"
 )
@@ -64,7 +65,7 @@ func (u *Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Users) ProcessSignOut(w http.ResponseWriter, r *http.Request) {
-	token, err := readCookie(r, CookieSession)
+	token, err := ReadCookie(r, CookieSession)
 
 	if err != nil {
 		http.Redirect(w, r, "/signin", http.StatusFound)
@@ -113,7 +114,9 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
-	token, err := readCookie(r, CookieSession)
+	context.User(r.Context())
+
+	token, err := ReadCookie(r, CookieSession)
 
 	if err != nil {
 		fmt.Println(err)

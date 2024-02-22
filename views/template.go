@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gorilla/csrf"
+	"github.com/makarellav/phogo/context"
+	"github.com/makarellav/phogo/models"
 	"html/template"
 	"io"
 	"io/fs"
@@ -29,6 +31,7 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data any) {
 		"csrfField": func() template.HTML {
 			return csrf.TemplateField(r)
 		},
+		"currentUser": func() *models.User { return context.User(r.Context()) },
 	})
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -57,8 +60,11 @@ func MustParseFS(fs fs.FS, patterns ...string) Template {
 	tmpl := template.New(patterns[0])
 	tmpl = tmpl.Funcs(
 		template.FuncMap{
-			"csrfField": func() template.HTML {
-				return `<!-- -->`
+			"csrfField": func() (template.HTML, error) {
+				return "", fmt.Errorf("csrfField not implemented")
+			},
+			"currentUser": func() (template.HTML, error) {
+				return "", fmt.Errorf("currentUser not implemented")
 			},
 		},
 	)
